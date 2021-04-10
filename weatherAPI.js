@@ -1,32 +1,49 @@
 import axios from "axios";
 import { OPEN_WEATHER_MAP_API_KEY } from "./credentials.js";
+import Table from "cli-table3";
+import { DateTime } from "luxon";
 
+async function getData(url) {
+  try {
+    const response = await axios.get(url);
+    let data = response.data;
+    return data;
+  } catch (error) {
+    console.log(error.message);
+  }
+}
 export async function printCurrentWeather(cityName) {
   const OPEN_WEATHER_MAP_API =
     `http://api.openweathermap.org/data/2.5/weather?q=${cityName}` +
     `&appid=${OPEN_WEATHER_MAP_API_KEY}&units=metric&lang=ro`;
-  try {
-    const response = await axios.get(OPEN_WEATHER_MAP_API);
-    let data = response.data;
-    console.log(
-      `În ${data.name} se prognozeaza ${data.weather[0].description}.  ` +
-        `\nTemperatura curentă este de ${data.main.temp}°C.`
-    );
-    return data.coord;
-  } catch (error) {
-    console.log(error.message);
-  }
+  const data = await getData(OPEN_WEATHER_MAP_API);
+  console.log(
+    `În ${data.name} se prognozeaza ${data.weather[0].description}.  ` +
+      `\nTemperatura curentă este de ${data.main.temp}°C.`
+  );
+  return data.coord;
 }
 
 export async function printForecastFor7Days({ lon, lat }) {
   const OPEN_WEATHER_MAP_API =
     `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}` +
     `&appid=${OPEN_WEATHER_MAP_API_KEY}&units=metric&lang=ro`;
-  try {
-    const response = await axios.get(OPEN_WEATHER_MAP_API);
-    let data = response.data;
-    console.log(data.daily.length);
-  } catch (error) {
-    console.log(error.message);
-  }
+  const data = await getData(OPEN_WEATHER_MAP_API);
+  let table = new Table({
+    head: ["Data", "Temp max.", "Temp min.", "Viteza vantului"],
+  });
+  const dailyData = data.daily;
+  console.log(dailyData);
+  dailyData.forEach((dayData) => {
+    const date = DateTime.fromSeconds(dayData.dt);
+    const arr = [
+      date.setLocale("ro").toLocaleString(DateTime.DATE_MED),
+      dayData.dt,
+      dayData.temp.max,
+      dayData.temp.min,
+      dayData.wind_speed,
+    ];
+    table.push(arr);
+  });
+  console.log(table.toString());
 }

@@ -10,6 +10,8 @@
   "author": "Aiurel",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.21.1"
+    "axios": "^0.21.1",
+    "cli-table3": "^0.6.0",
+    "luxon": "^1.26.0"
   }
 }
