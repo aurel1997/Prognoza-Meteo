@@ -9,7 +9,21 @@ async function getData(url) {
     let data = response.data;
     return data;
   } catch (error) {
-    console.log(error.message);
+    const errorMessage = {
+      401: "API key este incorecta. Va rugam sa verificati fisierul credentials.js",
+      404: "Va rugam sa verificat daca ati introdus numele orasului corect",
+      429: "Ati depasit limita de cerere catre OpenWeather",
+      500: "Ne pare rau, serverul este ratat",
+      ENOTFOUND:
+        "Nu exista o conexiune la internet. Esti ciumadan, plateste netul",
+      get EAI_AGAIN() {
+        return this.ENOTFOUND;
+      },
+    };
+
+    const errorCode = error.code ?? Number(error.response.data.cod);
+    console.log(errorMessage[errorCode]);
+    process.exit();
   }
 }
 /**
